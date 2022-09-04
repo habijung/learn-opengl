@@ -3,3 +3,6 @@
 
 # Dir Info.
 .DS_Store
+
+# CMake
+cmake-build-debug
