@@ -19,7 +19,7 @@ JesBrains의 CLion에서 빌드
 - Clone OpenGL project
 ```commandline
 $ git clone git@github.com:habijung/learn-opengl.git
-$ git submodule update --init --recursive --remote
+$ git submodule update --init --recursive
 ```
 
 - Update Libraries Tag
