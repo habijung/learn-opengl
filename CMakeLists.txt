@@ -19,8 +19,9 @@ include_directories(external/glfw)
 
 # ASSIMP
 
-# Executable main.cpp
+# Project execute
 add_executable(${PROJECT_NAME}
+        external/glad/src/glad.c
         main.cpp
 )
 target_link_libraries(${PROJECT_NAME}
