@@ -12,6 +12,7 @@
 
 /* Prototypes */
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void processInput(GLFWwindow *window);
 
 
 /* Main */
@@ -52,6 +53,7 @@ int main()
     // 프로그램이 정지 신호를 받기 전까지 계속 image render
     while (!glfwWindowShouldClose(window))
     {
+        processInput(window);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -67,4 +69,11 @@ int main()
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+}
+
+// Key input에 따른 반응 function
+void processInput(GLFWwindow *window)
+{
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
 }
