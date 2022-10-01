@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(test)
+project(Learn-OpenGL)
 
 # OpenGL
 find_package(OpenGL REQUIRED)
@@ -8,6 +8,7 @@ find_package(OpenGL REQUIRED)
 include_directories(external/glad/include)
 
 # GLFW
+# GLFW의 docs, tests, examples를 빌드하지 않는 옵션
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -18,9 +19,10 @@ include_directories(external/glfw)
 
 # ASSIMP
 
-# Executable main.cpp
+# Project execute
 add_executable(${PROJECT_NAME}
-        main.cpp
+        external/glad/src/glad.c
+        src/1.Getting-Started/1.1.Hello-Window.cpp
 )
 target_link_libraries(${PROJECT_NAME}
         OpenGL::GL
