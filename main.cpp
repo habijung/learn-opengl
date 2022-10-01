@@ -50,10 +50,19 @@ int main()
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    // 프로그램이 정지 신호를 받기 전까지 계속 image render
+    // 프로그램이 정지 신호를 받기 전까지 계속 image render하는 loop
     while (!glfwWindowShouldClose(window))
     {
+        // Input
         processInput(window);
+
+        // Rendering commands here
+        // 실제로 작동하는지 확인을 위해 원하는 색상으로 화면 clear
+        // Clear하는 것은 render loop에서 실행되고 다시 로딩할 때, 덮어쓰기로 현재는 이해함.
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // Check and all events and swap the buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
