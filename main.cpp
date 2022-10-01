@@ -9,6 +9,12 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
+
+/* Prototypes */
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+
+
+/* Main */
 int main()
 {
     std::cout << "Run main()" << std::endl;
@@ -41,5 +47,24 @@ int main()
         return -1;
     }
 
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    // 프로그램이 정지 신호를 받기 전까지 계속 image render
+    while (!glfwWindowShouldClose(window))
+    {
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+    glfwTerminate();
+
     return 0;
+}
+
+
+/* Functions */
+// 사용자가 윈도우 크기를 조정할 때, 뷰포트도 조정하는 callback function
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
 }
