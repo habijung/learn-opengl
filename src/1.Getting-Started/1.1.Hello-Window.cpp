@@ -41,6 +41,7 @@ int main()
     /*
      * macOS에서 error 발생함.
      * Error: symbol(s) not found for architecture arm64
+     * CMakeLists에서 GLAD가 executable taget으로 연결되어 있지 않아서 발생하는 문제
      */
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
     {
