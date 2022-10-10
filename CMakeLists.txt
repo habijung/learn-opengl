@@ -22,9 +22,10 @@ include_directories(external/glfw)
 # Project execute
 add_executable(${PROJECT_NAME}
         external/glad/src/glad.c
-        src/1.Getting-Started/1.1.Hello-Window.cpp
-)
+#        src/1.Getting-Started/1.1.Hello-Window.cpp
+        src/1.Getting-Started/1.2.Hello-Triangle.cpp
+        )
 target_link_libraries(${PROJECT_NAME}
         OpenGL::GL
         glfw
-)
+        )
