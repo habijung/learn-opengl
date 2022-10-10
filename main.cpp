@@ -21,8 +21,6 @@ float vertices[] = {
         0.0f,  0.5f, 0.0f
 };
 unsigned int VBO;
-glGenBuffers(1, &VBO);
-glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
 
 /* Main */
@@ -51,7 +49,12 @@ int main() {
         return -1;
     }
 
+    /* Callbacks */
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    /* Generate & Bind VBO */
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
     /* Render Loop */
     while (!glfwWindowShouldClose(window)) {
