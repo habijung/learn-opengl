@@ -14,18 +14,29 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
 
 
-/* Variables */
-float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        0.0f,  0.5f, 0.0f
-};
-unsigned int VBO;
-
-
 /* Main */
 int main() {
     cout << "Run Main()" << endl;
+
+    /* Variables */
+    float vertices[] = {
+            -0.5f, -0.5f, 0.0f,
+            0.5f, -0.5f, 0.0f,
+            0.0f, 0.5f, 0.0f
+    };
+    unsigned int VBO;
+    unsigned int vertexShader;
+    int success;
+    char infoLog[512];
+
+    /* Shader */
+    const char *vertexShaderSource =
+            "#version 330 core\n"
+            "layout (location = 0) in vec3 aPos;\n"
+            "void main()\n"
+            "{\n"
+            "    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+            "}\0";
 
     /* GLFW 초기화 */
     glfwInit();
@@ -55,6 +66,20 @@ int main() {
     /* Generate & Bind VBO */
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    /* Vertex Shader */
+    vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
+
+    // Shader compile이 성공했는지 확인하기
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+
+    if (!success) {
+        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << endl;
+    }
 
     /* Render Loop */
     while (!glfwWindowShouldClose(window)) {
