@@ -162,6 +162,12 @@ int main() {
         glfwPollEvents();
     }
 
+    // Optional: De-allocate all resources once they've outlived their purpose
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
+    glDeleteProgram(shaderProgram);
+
     glfwTerminate();
 
     return 0;
