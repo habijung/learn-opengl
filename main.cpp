@@ -25,6 +25,7 @@ int main() {
             0.0f, 0.5f, 0.0f
     };
     unsigned int VBO;
+    unsigned int VAO;
     unsigned int vertexShader;
     unsigned int fragmentShader;
     unsigned int shaderProgram;
@@ -70,10 +71,11 @@ int main() {
     /* Callbacks */
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    /* Generate & Bind VBO */
+    /* Generate & Bind VBO & VAO */
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glGenVertexArrays(1, &VAO);
 
     /* Vertex Shader */
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -116,12 +118,29 @@ int main() {
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
+    /* Draw Triangle */
+    // Copy vertices array in a buffer for OpenGL to use
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindVertexArray(VAO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    // Linking vertex attributes pointers
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // Use shader program when we want to render an object
+    glUseProgram(shaderProgram);
+
     /* Render Loop */
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        glUseProgram(shaderProgram);
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
