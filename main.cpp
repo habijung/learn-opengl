@@ -10,58 +10,27 @@ using namespace std;
 
 /* Prototypes */
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
-
 void processInput(GLFWwindow *window);
+
+
+/* Shader Settings */
+const char *vertexShaderSource =
+        "#version 330 core\n"
+        "layout (location = 0) in vec3 aPos;\n"
+        "void main() {\n"
+        "    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+        "}\0";
+const char *fragmentShaderSource =
+        "#version 330 core\n"
+        "out vec4 FragColor;\n"
+        "void main() {\n"
+        "    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+        "}\0";
 
 
 /* Main */
 int main() {
     cout << "Run Main()" << endl;
-
-    /* Variables */
-//    float vertices[] = {
-//            // first triangle
-//            0.5f,  0.5f, 0.0f,   // top right
-//            0.5f, -0.5f, 0.0f,   // bottom right
-//            -0.5f,  0.5f, 0.0f,  // top left
-//            // second triangle
-//            0.5f, -0.5f, 0.0f,    // bottom right
-//            -0.5f, -0.5f, 0.0f,  // bottom left
-//            -0.5f,  0.5f, 0.0f   // top left
-//    };
-    float vertices[] = {
-            // first triangle
-            0.5f,  0.5f, 0.0f,    // top right
-            0.5f, -0.5f, 0.0f,    // bottom right
-            -0.5f, -0.5f, 0.0f,   // bottom left
-            -0.5f,  0.5f, 0.0f  // top left
-    };
-    unsigned int indices[] = {
-            0, 1, 3,   // first triangle
-            1, 2, 3    // second triangle
-    };
-    unsigned int VBO;
-    unsigned int VAO;
-    unsigned int EBO;
-    unsigned int vertexShader;
-    unsigned int fragmentShader;
-    unsigned int shaderProgram;
-    int success;
-    char infoLog[512];
-
-    /* Shader */
-    const char *vertexShaderSource =
-            "#version 330 core\n"
-            "layout (location = 0) in vec3 aPos;\n"
-            "void main() {\n"
-            "    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-            "}\0";
-    const char *fragmentShaderSource =
-            "#version 330 core\n"
-            "out vec4 FragColor;\n"
-            "void main() {\n"
-            "    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-            "}\0";
 
     /* GLFW 초기화 */
     glfwInit();
@@ -79,75 +48,100 @@ int main() {
     }
     glfwMakeContextCurrent(window);
 
+    /* Callbacks */
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
     /* Initialize GLAD */
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         cout << "Failed to initialize GLAD" << endl;
         return -1;
     }
 
-    /* Callbacks */
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    /* Bind shader program */
+    unsigned int vertexShader;
+    unsigned int fragmentShader;
+    unsigned int shaderProgram;
+    int success;
+    char infoLog[512];
 
-    /* Generate & Bind VBO & VAO & EBO */
-    glGenBuffers(1, &VBO);
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &EBO);
-
-    /* Vertex Shader */
+    // Vertex Shader
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
     glCompileShader(vertexShader);
 
-    // Vertex Shader compile이 성공했는지 확인
+    // Vertex Shader compile 성공 확인
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
         cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << endl;
     }
 
-    /* Fragment Shader */
+    // Fragment Shader
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
     glCompileShader(fragmentShader);
 
-    // Fragment Shader complie이 성공했는지 확인
+    // Fragment Shader complie 성공 확인
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
         cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << endl;
     }
 
-    /* Shader Program */
+    // Shader Program & Link Shader
     shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
 
-    // Shader Program compile이 성공했는지 확인
+    // Shader Program compile 성공 확인
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
     if (!success) {
         glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
     }
 
-    // Shader Program 사용 및 Shader Source 삭제
-    glUseProgram(shaderProgram);
+    // Shader Source 삭제
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-    /* Draw Triangle */
+
+    /* Set up vertex & index data */
+    float vertices[] = {
+            0.5f, 0.5f, 0.0f,    // top right
+            0.5f, -0.5f, 0.0f,    // bottom right
+            -0.5f, -0.5f, 0.0f,   // bottom left
+            -0.5f, 0.5f, 0.0f  // top left
+    };
+    unsigned int indices[] = {
+            0, 1, 3,   // first triangle
+            1, 2, 3    // second triangle
+    };
+
+    /* Set up buffers */
+    unsigned int VBO, VAO, EBO;
+
+    // Generate & Bind VBO, VAO, EBO
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+
     // Copy vertices array in a buffer for OpenGL to use
     glBindVertexArray(VAO);
+
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // Linking vertex attributes pointers
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *) 0);
     glEnableVertexAttribArray(0);
 
-    // Use shader program when we want to render an object
-    glUseProgram(shaderProgram);
+    // glVertexAttribPointer()를 통해서 vertex attribute의 vertex buffer object를 가져왔기 때문에, unbind가 가능함
+    // 그러나 VAO가 활성화 되어 있는 동안 EBO는 unbind 하면 안됨
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 
     /* Render Loop */
     while (!glfwWindowShouldClose(window)) {
@@ -156,11 +150,13 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        // Use shader program when we want to render an object
         glUseProgram(shaderProgram);
+
         glBindVertexArray(VAO);
-//        glDrawArrays(GL_TRIANGLES, 0, 3);
+        // glDrawArrays(GL_TRIANGLES, 0, 3);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
