@@ -45,7 +45,9 @@ int main() {
     }
 
     /* Shader Settings */
-    Shader ourShader("shader.vs", "shader.fs");
+    const char* vertexPath = "/Users/habi/OpenGL/learn-opengl/shader.vs";
+    const char* fragmentPath = "/Users/habi/OpenGL/learn-opengl/shader.fs";
+    Shader ourShader(vertexPath, fragmentPath);
 
     /* Set up vertex & index data */
     float vertices[] = {
