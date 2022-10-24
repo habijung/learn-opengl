@@ -2,10 +2,11 @@
 // Created by habi on 10/17/2022.
 //
 #include <iostream>
+#include <string>
 #include <math.h>
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
-#include "shader.h"
+#include "../../shaders/1.Getting-Started/shader.h"
 
 using namespace std;
 
@@ -45,9 +46,14 @@ int main() {
     }
 
     /* Shader Settings */
-    const char* vertexPath = "/Users/habi/OpenGL/learn-opengl/shader.vs";
-    const char* fragmentPath = "/Users/habi/OpenGL/learn-opengl/shader.fs";
-    Shader ourShader(vertexPath, fragmentPath);
+    /*
+     * CLion에서는 cmake-build-debug라는 폴더 내부에 executable 파일이 생성됨.
+     * 그래서 relative path로 vertex, fragment shader 파일들을 가져오기 위해서는 상위 폴더로 이동해야함.
+     */
+    string dirPath = "../shaders/1.Getting-Started/";
+    string vertexPath = dirPath + "shader.vs";
+    string fragmentPath = dirPath + "shader.fs";
+    Shader ourShader(vertexPath.c_str(), fragmentPath.c_str());
 
     /* Set up vertex & index data */
     float vertices[] = {
