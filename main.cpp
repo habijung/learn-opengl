@@ -62,6 +62,23 @@ int main() {
             0, 1, 3,   // first triangle
             1, 2, 3    // second triangle
     };
+    float textCoords[] = {
+            0.0f, 0.0f,     // lower-left corner
+            1.0f, 0.0f,     // lower-right corner
+            0.5f, 1.0f,     // top-center corner
+    };
+
+    /* Textures option settings */
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+
+    // 테두리 설정
+    float borderColor[]{1.0f, 1.0f, 0.0f, 1.0f};
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+    // 축소 & 확대에 관한 설정
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     /* Set up buffers */
     unsigned int VBO, VAO, EBO;
