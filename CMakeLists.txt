@@ -23,6 +23,7 @@ include_directories(external/glfw)
 add_executable(${PROJECT_NAME}
         external/glad/src/glad.c
         main.cpp
+        stb_image.h
         # src/1.Getting-Started/1.3.Shaders.cpp
         # src/1.Getting-Started/1.2.Hello-Triangle.cpp
         # src/1.Getting-Started/1.1.Hello-Window.cpp
