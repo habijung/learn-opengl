@@ -56,11 +56,11 @@ int main() {
 
     /* Set up vertex & index data */
     float vertices[] = {
-            // positions                      // colors
-            0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f,         // top right
-            0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,      // bottom right
-            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,  // bottom left
-            -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f    // top left
+            // positions                      // colors                     // texture coords
+            0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,         // top right
+            0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,      // bottom right
+            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,  // bottom left
+            -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f    // top left
     };
     unsigned int indices[] = {
             0, 1, 3,   // first triangle
@@ -120,11 +120,14 @@ int main() {
 
     // Linking vertex attributes pointers
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) 0);
     glEnableVertexAttribArray(0);
     // color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    // texture attribute
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     // glVertexAttribPointer()를 통해서 vertex attribute의 vertex buffer object를 가져왔기 때문에, unbind가 가능함
     // 그러나 VAO가 활성화 되어 있는 동안 EBO는 unbind 하면 안됨
@@ -141,6 +144,7 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        glBindTexture(GL_TEXTURE_2D, texture);
         glBindVertexArray(VAO);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
