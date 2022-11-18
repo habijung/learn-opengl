@@ -82,7 +82,7 @@ int main() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 
     // 테두리 설정
-    float borderColor[]{1.0f, 1.0f, 0.0f, 1.0f};
+    float borderColor[] = {1.0f, 1.0f, 0.0f, 1.0f};
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
     // 축소 & 확대에 관한 설정
