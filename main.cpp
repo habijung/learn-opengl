@@ -3,6 +3,7 @@
 //
 #include <iostream>
 #include <string>
+#include <filesystem>
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "../../shaders/1.Getting-Started/shader.h"
@@ -124,8 +125,9 @@ int main() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     /* STB settings */
+    filesystem::path imgPath = "../img/container.jpg";
     int width, height, nrChannels;
-    unsigned char *data = stbi_load("../img/container.jpg", &width, &height, &nrChannels, 0);
+    unsigned char *data = stbi_load(imgPath.c_str(), &width, &height, &nrChannels, 0);
 
     if (data) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
