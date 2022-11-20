@@ -6,7 +6,7 @@
 #include <filesystem>
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
-#include "../../shaders/1.Getting-Started/shader.h"
+#include "shaders/shader.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 
@@ -51,7 +51,7 @@ int main() {
     }
 
     /* Shader Settings */
-    string dirPath = "../shaders/1.Getting-Started/";
+    string dirPath = "../shaders/";
     string vertexPath = dirPath + "shader.vs";
     string fragmentPath = dirPath + "shader.fs";
     Shader ourShader(vertexPath.c_str(), fragmentPath.c_str());

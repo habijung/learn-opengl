@@ -6,7 +6,7 @@
 #include <math.h>
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
-#include "../../shaders/1.Getting-Started/shader.h"
+#include "../shaders/shader.h"
 
 using namespace std;
 
@@ -50,7 +50,7 @@ int main() {
      * CLion에서는 cmake-build-debug라는 폴더 내부에 executable 파일이 생성됨.
      * 그래서 relative path로 vertex, fragment shader 파일들을 가져오기 위해서는 상위 폴더로 이동해야함.
      */
-    string dirPath = "../shaders/1.Getting-Started/";
+    string dirPath = "../shaders/";
     string vertexPath = dirPath + "shader.vs";
     string fragmentPath = dirPath + "shader.fs";
     Shader ourShader(vertexPath.c_str(), fragmentPath.c_str());
