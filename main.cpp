@@ -144,6 +144,7 @@ int main() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     /* STB settings (texture2) */
+    stbi_set_flip_vertically_on_load(true);
     imgPath = "../img/awesomeface.png";
     data = stbi_load(imgPath.c_str(), &width, &height, &nrChannels, 0);
 
