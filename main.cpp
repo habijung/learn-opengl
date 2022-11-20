@@ -107,26 +107,20 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    /* Texture settings */
+    /* texture1 settings */
     unsigned int texture1, texture2;
     glGenTextures(1, &texture1);
     glBindTexture(GL_TEXTURE_2D, texture1);
-    glGenTextures(1, &texture2);
-    glBindTexture(GL_TEXTURE_2D, texture2);
 
     /* Textures option settings */
+    // Wrapping 반복에 관한 설정
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-
-    // 테두리 설정
-    float borderColor[] = {1.0f, 1.0f, 0.0f, 1.0f};
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-
     // 축소 & 확대에 관한 설정
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    /* STB settings */
+    /* STB settings (texture1) */
     filesystem::path imgPath = "../img/container.jpg";
     int width, height, nrChannels;
     unsigned char *data = stbi_load(imgPath.c_str(), &width, &height, &nrChannels, 0);
@@ -135,10 +129,21 @@ int main() {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     } else {
-        cout << "Failed to load texture" << endl;
+        cout << "Failed to load texture1" << endl;
     }
     stbi_image_free(data); // 텍스처와 밉맵 생성 완료 후 이미지 메모리 해제
 
+    /* texture2 settings */
+    glGenTextures(1, &texture2);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+    // Wrapping 반복에 관한 설정
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    // 축소 & 확대에 관한 설정
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    /* STB settings (texture2) */
     imgPath = "../img/awesomeface.png";
     data = stbi_load(imgPath.c_str(), &width, &height, &nrChannels, 0);
 
@@ -146,9 +151,11 @@ int main() {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     } else {
-        cout << "Failed to load texture" << endl;
+        cout << "Failed to load texture2" << endl;
     }
+    stbi_image_free(data);
 
+    // 각 sampler 변수에 texture 맞춰주기
     ourShader.use();
     glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
     ourShader.setInt("texture2", 1);
@@ -168,6 +175,7 @@ int main() {
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
 
+        ourShader.use();
         glBindVertexArray(VAO);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -196,4 +204,3 @@ void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 }
-
