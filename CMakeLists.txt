@@ -20,11 +20,13 @@ include_directories(external/glfw)
 
 # ASSIMP
 
+# Custom Include
+include_directories(include)
+
 # Project execute
 add_executable(${PROJECT_NAME}
         external/glad/src/glad.c
-        main.cpp
-        stb_image.h
+        src/1.4.Textures.cpp
         )
 target_link_libraries(${PROJECT_NAME}
         OpenGL::GL

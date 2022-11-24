@@ -9,7 +9,6 @@
 #include "shaders/shader.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-
 #include "stb_image.h"
 
 using namespace std;
@@ -51,7 +50,7 @@ int main() {
     }
 
     /* Shader Settings */
-    string dirPath = "../shaders/";
+    string dirPath = "../include/shaders/";
     string vertexPath = dirPath + "shader.vs";
     string fragmentPath = dirPath + "shader.fs";
     Shader ourShader(vertexPath.c_str(), fragmentPath.c_str());
