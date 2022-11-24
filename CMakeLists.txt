@@ -17,6 +17,8 @@ add_subdirectory(external/glfw)
 include_directories(external/glfw)
 
 # GLM
+add_subdirectory(external/glm)
+include_directories(external/glm)
 
 # ASSIMP
 
