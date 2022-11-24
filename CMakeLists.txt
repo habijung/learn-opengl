@@ -26,7 +26,7 @@ include_directories(include)
 # Project execute
 add_executable(${PROJECT_NAME}
         external/glad/src/glad.c
-        src/1.4.Textures.cpp
+        src/1.5.Transformations.cpp
         )
 target_link_libraries(${PROJECT_NAME}
         OpenGL::GL
