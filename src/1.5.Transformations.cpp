@@ -12,6 +12,7 @@
 #include "shaders/shader.h"
 
 #define STB_IMAGE_IMPLEMENTATION
+
 #include "stb_image.h"
 
 using namespace std;
@@ -174,9 +175,6 @@ int main() {
     glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
     ourShader.setInt("texture2", 1);
 
-    unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
-    glUniformMatrix4fv((GLint)transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
-
     /* Render Loop */
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
@@ -196,6 +194,14 @@ int main() {
         glBindVertexArray(VAO);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        // Render loop 내부에서 시간에 따라 rotate를 계속 할 수 있는 transformation을 적용함
+        trans = glm::mat4(1.0f);
+        trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+        trans = glm::rotate(trans, (float) glfwGetTime(), glm::vec3(1.0f, 1.0f, 1.0f));
+
+        unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+        glUniformMatrix4fv((GLint) transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
         glfwSwapBuffers(window);
         glfwPollEvents();
