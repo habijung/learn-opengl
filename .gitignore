@@ -3,6 +3,7 @@
 
 # Dir Info.
 .DS_Store
+desktop.ini
 
 # CMake
 cmake-build-debug
