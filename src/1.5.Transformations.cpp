@@ -1,21 +1,23 @@
 //
-// Created by habi on 10/17/2022.
+// Created by habi on 11/24/2022.
 //
+#define STB_IMAGE_IMPLEMENTATION
+
 #include <iostream>
 #include <string>
 #include <filesystem>
+
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+
 #include "shaders/shader.h"
-
-#define STB_IMAGE_IMPLEMENTATION
-
 #include "stb_image.h"
 
 using namespace std;
+using namespace glm;
 
 
 /* Prototypes */
@@ -36,7 +38,7 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
     /* Window object 생성 */
-    GLFWwindow *window = glfwCreateWindow(800, 600, "Shaders", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(800, 600, "Learn OpenGL", NULL, NULL);
     if (window == NULL) {
         cout << "Failed to creat GLFW window" << endl;
         glfwTerminate();
@@ -59,7 +61,7 @@ int main() {
     string fragmentPath = dirPath + "shader.fs";
     Shader ourShader(vertexPath.c_str(), fragmentPath.c_str());
 
-    /* Set up vertex & index data */
+    /* Set up mesh data */
     float vertices[] = {
             // positions                      // colors                     // texture coords
             0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,         // top right
@@ -71,40 +73,22 @@ int main() {
             0, 1, 3,   // first triangle
             1, 2, 3    // second triangle
     };
-    float textCoords[] = {
-            0.0f, 0.0f,     // lower-left corner
-            1.0f, 0.0f,     // lower-right corner
-            0.5f, 1.0f,     // top-center corner
-    };
-
-    /* GLM test */
-    glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
-    glm::mat4 trans = glm::mat4(1.0f);
-    trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
-    vec = trans * vec;
-    cout << "x: " << vec.x << ", y: " << vec.y << ", z: " << vec.z << endl;
-
-    trans = glm::mat4(1.0f);
-    trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
-    trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
 
     /* Set up buffers */
-    unsigned int VBO, VAO, EBO;
-
     // Generate & Bind VBO, VAO, EBO
+    unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
 
     // Copy vertices array in a buffer for OpenGL to use
     glBindVertexArray(VAO);
-
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
+    // TODO: Color Attribute는 사용하지 않아서 삭제하고 pointers 재배열하기
     // Linking vertex attributes pointers
     // position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) 0);
@@ -116,27 +100,22 @@ int main() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    // glVertexAttribPointer()를 통해서 vertex attribute의 vertex buffer object를 가져왔기 때문에, unbind가 가능함
-    // 그러나 VAO가 활성화 되어 있는 동안 EBO는 unbind 하면 안됨
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-    /* texture1 settings */
+    /* Load & Create textures */
     unsigned int texture1, texture2;
+
+    // texture1
     glGenTextures(1, &texture1);
     glBindTexture(GL_TEXTURE_2D, texture1);
-
-    /* Textures option settings */
-    // Wrapping 반복에 관한 설정
+    // texture1: Texture wrapping parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    // 축소 & 확대에 관한 설정
+    // texture1: Texture 축소 & 확대
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    /* STB settings (texture1) */
-    filesystem::path imgPath = "../img/container.jpg";
+    // texture1: Load image, create texture, and generate mipmaps with STB
     int width, height, nrChannels;
+    filesystem::path imgPath = "../img/container.jpg";
     unsigned char *data = stbi_load(imgPath.string().c_str(), &width, &height, &nrChannels, 0);
 
     if (data) {
@@ -145,19 +124,20 @@ int main() {
     } else {
         cout << "Failed to load texture1" << endl;
     }
-    stbi_image_free(data); // 텍스처와 밉맵 생성 완료 후 이미지 메모리 해제
+    // 텍스처와 밉맵 생성 완료 후 이미지 메모리 해제
+    stbi_image_free(data);
 
-    /* texture2 settings */
+    // texture 2
     glGenTextures(1, &texture2);
     glBindTexture(GL_TEXTURE_2D, texture2);
-    // Wrapping 반복에 관한 설정
+    // texture2: Texture wrapping parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    // 축소 & 확대에 관한 설정
+    // texture2: Texture 축소 & 확대
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    /* STB settings (texture2) */
+    // texture2: Load image, create texture, and generate mipmaps with STB
     stbi_set_flip_vertically_on_load(true);
     imgPath = "../img/awesomeface.png";
     data = stbi_load(imgPath.string().c_str(), &width, &height, &nrChannels, 0);
@@ -170,9 +150,10 @@ int main() {
     }
     stbi_image_free(data);
 
+    // TODO: Shader 함수 추가
     // 각 sampler 변수에 texture 맞춰주기
     ourShader.use();
-    glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
+    ourShader.setInt("texture1", 0);
     ourShader.setInt("texture2", 1);
 
     /* Render Loop */
@@ -185,23 +166,27 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        // Bind textures
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
 
+        // Create transformations
+        // Render loop 내부에서 시간에 따라 rotate를 계속 할 수 있는 transformation을 적용함
+        mat4 trans = mat4(1.0f);
+        trans = translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+        trans = rotate(trans, (float) glfwGetTime(), glm::vec3(1.0f, 1.0f, 1.0f));
+
+        // Get matrix's uniform location and Set matrix
         ourShader.use();
+        unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+        glUniformMatrix4fv((GLint) transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
+        // Render container
         glBindVertexArray(VAO);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-        // Render loop 내부에서 시간에 따라 rotate를 계속 할 수 있는 transformation을 적용함
-        trans = glm::mat4(1.0f);
-        trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-        trans = glm::rotate(trans, (float) glfwGetTime(), glm::vec3(1.0f, 1.0f, 1.0f));
-
-        unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
-        glUniformMatrix4fv((GLint) transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
         glfwSwapBuffers(window);
         glfwPollEvents();
