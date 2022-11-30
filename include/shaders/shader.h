@@ -44,7 +44,7 @@ public:
             vertexCode = vShaderStream.str();
             fragmentCode = fShaderStream.str();
         }
-        catch (ifstream::failure e) {
+        catch (ifstream::failure &e) {
             cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ: " << e.what() << endl;
         }
 
@@ -53,44 +53,25 @@ public:
 
         // 2. compile shaders
         unsigned int vertex, fragment;
-        int success;
-        char infoLog[512];
 
         // Vertex Shader
         vertex = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertex, 1, &vShaderCode, NULL);
         glCompileShader(vertex);
-
-        // Vertex Shader compile 성공 확인
-        glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
-        if (!success) {
-            glGetShaderInfoLog(vertex, 512, NULL, infoLog);
-            cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << endl;
-        }
+        checkCompileErrors(vertex, "VERTEX"); // Vertex Shader compile 성공 확인
 
         // Fragment Shader
         fragment = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragment, 1, &fShaderCode, NULL);
         glCompileShader(fragment);
-
-        // Fragment Shader complie 성공 확인
-        glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
-        if (!success) {
-            glGetShaderInfoLog(fragment, 512, NULL, infoLog);
-            cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << endl;
-        }
+        checkCompileErrors(fragment, "FRAGMENT"); // Fragment Shader compile 성공 확인
 
         // Shader Program
         ID = glCreateProgram();
         glAttachShader(ID, vertex);
         glAttachShader(ID, fragment);
         glLinkProgram(ID);
-
-        // Shader Program compile 성공 확인
-        glGetProgramiv(ID, GL_LINK_STATUS, &success);
-        if (!success) {
-            glGetProgramInfoLog(ID, 512, NULL, infoLog);
-        }
+        checkCompileErrors(ID, "PROGRAM"); // Shader program compile 성공 확인
 
         // Shader Source 삭제
         glDeleteShader(vertex);
@@ -114,6 +95,26 @@ public:
     void setFloat(const string &name, float value) const {
         glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
     };
+
+private:
+    static void checkCompileErrors(GLuint shader, string type) {
+        int success;
+        char infoLog[1024];
+
+        if (type != "PROGRAM") {
+            glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+            if (!success) {
+                glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+                cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n\n" << endl;
+            } else {
+                glGetProgramiv(shader, GL_LINK_STATUS, &success);
+                if (!success) {
+                    glGetProgramInfoLog(shader, 1024, NULL, infoLog);
+                    cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n\n" << endl;
+                }
+            }
+        }
+    }
 };
 
 #endif
