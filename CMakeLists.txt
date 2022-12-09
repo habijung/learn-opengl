@@ -28,7 +28,7 @@ include_directories(include)
 # Project execute
 add_executable(${PROJECT_NAME}
         external/glad/src/glad.c
-        src/1.5.Transformations.cpp
+        src/1.6.Coordinate-Systems.cpp
         )
 target_link_libraries(${PROJECT_NAME}
         OpenGL::GL
