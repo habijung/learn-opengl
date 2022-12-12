@@ -173,29 +173,21 @@ int main() {
         glBindTexture(GL_TEXTURE_2D, texture2);
 
         // Create transformations
-        // Render loop 내부에서 시간에 따라 rotate를 계속 할 수 있는 transformation을 적용함
-//        mat4 trans = mat4(1.0f);
-//        trans = translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-//        trans = rotate(trans, (float) glfwGetTime(), glm::vec3(1.0f, 1.0f, 1.0f));
-
         mat4 model = mat4(1.0f);
-        model = rotate(model, radians(-55.0f), vec3(1.0f, 0.0f, 0.0f));
         mat4 view = mat4(1.0f);
+        mat4 projection = mat4(1.0f);
+        model = rotate(model, radians(-55.0f), vec3(1.0f, 0.0f, 0.0f));
         view = translate(view, vec3(0.0f, 0.0f, -3.0f));
-        mat4 projection;
         projection = perspective(radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
         // Get matrix's uniform location and Set matrix
         ourShader.use();
-//        unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
-//        glUniformMatrix4fv((GLint) transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
         int modelLoc = glGetUniformLocation(ourShader.ID, "model");
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
         int viewLoc = glGetUniformLocation(ourShader.ID, "view");
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(view));
         int projectionLoc = glGetUniformLocation(ourShader.ID, "projection");
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(view));
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, value_ptr(projection));
-
 
         // Render container
         glBindVertexArray(VAO);
