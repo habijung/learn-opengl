@@ -15,6 +15,7 @@
 
 #include "shaders/shader.h"
 #include "stb_image.h"
+#include "cube.h"
 
 using namespace std;
 using namespace glm;
@@ -62,13 +63,6 @@ int main() {
     Shader ourShader(vertexPath.c_str(), fragmentPath.c_str());
 
     /* Set up mesh data */
-    float vertices[] = {
-            // positions      // texture coords
-            0.5f, 0.5f, 0.0f, 1.0f, 1.0f,    // top right
-            0.5f, -0.5f, 0.0f, 1.0f, 0.0f,   // bottom right
-            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  // bottom left
-            -0.5f, 0.5f, 0.0f, 0.0f, 1.0f    // top left
-    };
     unsigned int indices[] = {
             0, 1, 3,  // first triangle
             1, 2, 3   // second triangle
@@ -172,7 +166,7 @@ int main() {
         mat4 model = mat4(1.0f);
         mat4 view = mat4(1.0f);
         mat4 projection = mat4(1.0f);
-        model = rotate(model, radians(-55.0f), vec3(1.0f, 0.0f, 0.0f));
+        model = rotate(model, (float)glfwGetTime() * radians(50.0f), vec3(0.0f, 1.0f, 0.0f));
         view = translate(view, vec3(0.0f, 0.0f, -3.0f));
         projection = perspective(radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
@@ -187,8 +181,8 @@ int main() {
 
         // Render container
         glBindVertexArray(VAO);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        // Specify indices를 사용하지 않으므로 glDrawArrays를 사용
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
