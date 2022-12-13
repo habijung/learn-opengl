@@ -62,6 +62,9 @@ int main() {
     string fragmentPath = dirPath + "shader.fs";
     Shader ourShader(vertexPath.c_str(), fragmentPath.c_str());
 
+    /* Configure global OpenGL state */
+    glEnable(GL_DEPTH_TEST);
+
     /* Set up mesh data */
     unsigned int indices[] = {
             0, 1, 3,  // first triangle
@@ -154,7 +157,7 @@ int main() {
         ourShader.setFloat("someUniform", 1.0f);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Bind textures
         glActiveTexture(GL_TEXTURE0);
