@@ -187,8 +187,9 @@ int main() {
         ourShader.use();
         int viewLoc = glGetUniformLocation(ourShader.ID, "view");
         int projectionLoc = glGetUniformLocation(ourShader.ID, "projection");
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(view));
-        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, value_ptr(projection));
+        // Pass locations to the shaders
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(view)); // Method 1
+        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]); // Method 2
 
         // Render container
         glBindVertexArray(VAO);
@@ -198,8 +199,9 @@ int main() {
             mat4 model = mat4(1.0f);
             model = translate(model, cubePositions[i]);
             model = rotate(model, (float) glfwGetTime() * radians(angle), vec3(1.0f, 0.3f, 0.5f));
-            int modelLoc = glGetUniformLocation(ourShader.ID, "model");
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
+
+            // Pass locations to the shaders
+            ourShader.setMat4("model", model); // Method 3
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
