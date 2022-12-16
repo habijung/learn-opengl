@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <filesystem>
+#include <random>
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -70,6 +71,17 @@ int main() {
             0, 1, 3,  // first triangle
             1, 2, 3   // second triangle
     };
+
+    // Set up random cube position
+    vec3 cubePositions[10];
+    std::random_device rd;
+    std::default_random_engine gen(rd());
+    std::uniform_real_distribution<float> disXY(-3, 3);
+    std::uniform_real_distribution<float> disZ(-10, -3);
+
+    for (auto &cubePosition: cubePositions) {
+        cubePosition = vec3(disXY(gen), disXY(gen), disZ(gen));
+    }
 
     /* Set up buffers */
     // Generate & Bind VBO, VAO, EBO
@@ -166,26 +178,31 @@ int main() {
         glBindTexture(GL_TEXTURE_2D, texture2);
 
         // Create transformations
-        mat4 model = mat4(1.0f);
         mat4 view = mat4(1.0f);
         mat4 projection = mat4(1.0f);
-        model = rotate(model, (float)glfwGetTime() * radians(50.0f), vec3(0.0f, 1.0f, 0.0f));
         view = translate(view, vec3(0.0f, 0.0f, -3.0f));
         projection = perspective(radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
         // Get matrix's uniform location and Set matrix
         ourShader.use();
-        int modelLoc = glGetUniformLocation(ourShader.ID, "model");
         int viewLoc = glGetUniformLocation(ourShader.ID, "view");
         int projectionLoc = glGetUniformLocation(ourShader.ID, "projection");
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(view));
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, value_ptr(projection));
 
         // Render container
         glBindVertexArray(VAO);
         // Specify indices를 사용하지 않으므로 glDrawArrays를 사용
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for (unsigned int i = 0; i < 10; i++) {
+            float angle = 20.0f * (float) i;
+            mat4 model = mat4(1.0f);
+            model = translate(model, cubePositions[i]);
+            model = rotate(model, (float) glfwGetTime() * radians(angle), vec3(1.0f, 0.3f, 0.5f));
+            int modelLoc = glGetUniformLocation(ourShader.ID, "model");
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
+
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();
