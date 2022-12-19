@@ -27,10 +27,14 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
 void processInput(GLFWwindow *window);
 
-/* Camera Settings */
+/* Camera */
 vec3 cameraPos = vec3(0.0f, 0.0f, 3.0f);
 vec3 cameraFront = vec3(0.0f, 0.0f, -1.0f);
 vec3 cameraUp = vec3(0.0f, 1.0f, 0.0f);
+
+/* Timing */
+float deltaTime = 0.0f; // Time between current frame and last frame
+float lastFrame = 0.0f; // Time of last frame
 
 
 /* Main */
@@ -168,6 +172,11 @@ int main() {
 
     /* Render Loop */
     while (!glfwWindowShouldClose(window)) {
+        // Per-Frame time logic
+        float currentFrame = static_cast<float>(glfwGetTime());
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         processInput(window);
 
         ourShader.use();
@@ -235,7 +244,7 @@ void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    const float cameraSpeed = 0.05f;
+    float cameraSpeed = static_cast<float> (2.5f * deltaTime);
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         cameraPos += cameraSpeed * cameraFront;
     }
