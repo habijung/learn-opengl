@@ -27,6 +27,11 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
 void processInput(GLFWwindow *window);
 
+/* Camera Settings */
+vec3 cameraPos = vec3(0.0f, 0.0f, 3.0f);
+vec3 cameraFront = vec3(0.0f, 0.0f, -1.0f);
+vec3 cameraUp = vec3(0.0f, 1.0f, 0.0f);
+
 
 /* Main */
 int main() {
@@ -82,14 +87,6 @@ int main() {
     for (auto &cubePosition: cubePositions) {
         cubePosition = vec3(disXY(gen), disXY(gen), disZ(gen));
     }
-
-    // Set up camera by Gram-Schmidt process
-    vec3 cameraPos = vec3(0.0f, 0.0f, 3.0f);
-    vec3 cameraTarget = vec3(0.0f, 0.0f, 0.0f);
-    vec3 cameraDirection = normalize(cameraPos - cameraTarget);
-    vec3 up = vec3(0.0f, 0.1f, 0.0f);
-    vec3 cameraRight = normalize(cross(up, cameraDirection));
-    vec3 cameraUp = cross(cameraDirection, cameraRight);
 
     /* Set up buffers */
     // Generate & Bind VBO, VAO, EBO
@@ -186,12 +183,9 @@ int main() {
         glBindTexture(GL_TEXTURE_2D, texture2);
 
         // Create transformations
-        const float radius = 15.0f;
-        float camX = sin((float) glfwGetTime()) * radius;
-        float camZ = cos((float) glfwGetTime()) * radius;
         mat4 view;
         mat4 projection = mat4(1.0f);
-        view = lookAt(vec3(camX, 0.0, camZ), cameraPos, up);
+        view = lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         projection = perspective(radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
         // Get matrix's uniform location and Set matrix
@@ -240,4 +234,18 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
 void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
+    const float cameraSpeed = 0.05f;
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        cameraPos += cameraSpeed * cameraFront;
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        cameraPos -= cameraSpeed * cameraFront;
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        cameraPos -= normalize(cross(cameraFront, cameraUp)) * cameraSpeed;
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        cameraPos += normalize(cross(cameraFront, cameraUp)) * cameraSpeed;
+    }
 }
