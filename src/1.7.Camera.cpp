@@ -77,11 +77,19 @@ int main() {
     std::random_device rd;
     std::default_random_engine gen(rd());
     std::uniform_real_distribution<float> disXY(-3, 3);
-    std::uniform_real_distribution<float> disZ(-10, -3);
+    std::uniform_real_distribution<float> disZ(-5, 0);
 
     for (auto &cubePosition: cubePositions) {
         cubePosition = vec3(disXY(gen), disXY(gen), disZ(gen));
     }
+
+    // Set up camera by Gram-Schmidt process
+    vec3 cameraPos = vec3(0.0f, 0.0f, 3.0f);
+    vec3 cameraTarget = vec3(0.0f, 0.0f, 0.0f);
+    vec3 cameraDirection = normalize(cameraPos - cameraTarget);
+    vec3 up = vec3(0.0f, 0.1f, 0.0f);
+    vec3 cameraRight = normalize(cross(up, cameraDirection));
+    vec3 cameraUp = cross(cameraDirection, cameraRight);
 
     /* Set up buffers */
     // Generate & Bind VBO, VAO, EBO
@@ -178,9 +186,12 @@ int main() {
         glBindTexture(GL_TEXTURE_2D, texture2);
 
         // Create transformations
-        mat4 view = mat4(1.0f);
+        const float radius = 15.0f;
+        float camX = sin((float) glfwGetTime()) * radius;
+        float camZ = cos((float) glfwGetTime()) * radius;
+        mat4 view;
         mat4 projection = mat4(1.0f);
-        view = translate(view, vec3(0.0f, 0.0f, -3.0f));
+        view = lookAt(vec3(camX, 0.0, camZ), cameraPos, up);
         projection = perspective(radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
         // Get matrix's uniform location and Set matrix
