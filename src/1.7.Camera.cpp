@@ -41,6 +41,7 @@ float lastFrame = 0.0f; // Time of last frame
 /* Mouse */
 float _pitch = 0.0f, _yaw = -90.0f;
 float lastX = 400.0f, lastY = 300.0f;
+bool firstMouse = true;
 
 /* Main */
 int main() {
@@ -269,6 +270,12 @@ void processInput(GLFWwindow *window) {
 }
 
 void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
+    if (firstMouse) {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
     float xoffset = xpos - lastX;
     float yoffset = lastY - ypos; // reversed since y-coordinates range from bottom to top
     lastX = xpos;
