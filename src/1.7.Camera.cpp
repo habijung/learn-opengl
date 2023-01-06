@@ -29,6 +29,8 @@ void processInput(GLFWwindow *window);
 
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
 
+void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
+
 /* Camera */
 vec3 cameraPos = vec3(0.0f, 0.0f, 3.0f);
 vec3 cameraFront = vec3(0.0f, 0.0f, -1.0f);
@@ -41,6 +43,7 @@ float lastFrame = 0.0f; // Time of last frame
 /* Mouse */
 float _pitch = 0.0f, _yaw = -90.0f;
 float lastX = 400.0f, lastY = 300.0f;
+float fov = 45.0f; // fov = Field of View
 bool firstMouse = true;
 
 /* Main */
@@ -66,6 +69,7 @@ int main() {
     /* Callbacks */
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     /* Initialize GLAD */
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
@@ -205,7 +209,7 @@ int main() {
         mat4 view;
         mat4 projection = mat4(1.0f);
         view = lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-        projection = perspective(radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+        projection = perspective(radians(fov), 800.0f / 600.0f, 0.1f, 100.0f);
 
         // Get matrix's uniform location and Set matrix
         ourShader.use();
@@ -301,4 +305,16 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
     direction.y = sin(radians(_pitch));
     direction.z = sin(radians(_yaw)) * cos(radians(_pitch));
     cameraFront = normalize(direction);
+}
+
+void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
+    const float sensitivity = 3.0f; // 스크롤 감도 조절
+    fov -= (float) yoffset * sensitivity; // yoffsset은 스크롤한 양을 알려줌.
+
+    if (fov < 1.0f) {
+        fov = 1.0;
+    }
+    if (fov > 45.0f) {
+        fov = 45.0f;
+    }
 }
