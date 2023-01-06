@@ -31,6 +31,10 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos);
 
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 
+/* Screen */
+const unsigned int SCR_WIDTH = 800;
+const unsigned int SCR_HEIGHT = 600;
+
 /* Camera */
 vec3 cameraPos = vec3(0.0f, 0.0f, 3.0f);
 vec3 cameraFront = vec3(0.0f, 0.0f, -1.0f);
@@ -41,10 +45,12 @@ float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 
 /* Mouse */
-float _pitch = 0.0f, _yaw = -90.0f;
-float lastX = 400.0f, lastY = 300.0f;
-float fov = 45.0f; // fov = Field of View
 bool firstMouse = true;
+float _pitch = 0.0f;
+float _yaw = -90.0f;
+float lastX = 400.0f;
+float lastY = 300.0f;
+float fov = 45.0f; // fov = Field of View
 
 /* Main */
 int main() {
@@ -58,7 +64,7 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
     /* Window object 생성 */
-    GLFWwindow *window = glfwCreateWindow(800, 600, "Learn OpenGL", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Learn OpenGL", NULL, NULL);
     if (window == NULL) {
         cout << "Failed to creat GLFW window" << endl;
         glfwTerminate();
@@ -71,23 +77,23 @@ int main() {
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
 
+    /* Mouse Input Settings */
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
     /* Initialize GLAD */
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         cout << "Failed to initialize GLAD" << endl;
         return -1;
     }
 
+    /* Configure global OpenGL state */
+    glEnable(GL_DEPTH_TEST);
+
     /* Shader Settings */
     string dirPath = "../include/shaders/";
     string vertexPath = dirPath + "shader.vs";
     string fragmentPath = dirPath + "shader.fs";
     Shader ourShader(vertexPath.c_str(), fragmentPath.c_str());
-
-    /* Mouse Input Settings */
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-    /* Configure global OpenGL state */
-    glEnable(GL_DEPTH_TEST);
 
     /* Set up mesh data */
     unsigned int indices[] = {
@@ -178,7 +184,6 @@ int main() {
     }
     stbi_image_free(data);
 
-    // TODO: Shader 함수 추가
     // 각 sampler 변수에 texture 맞춰주기
     ourShader.use();
     ourShader.setInt("texture1", 0);
@@ -300,11 +305,11 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
         _pitch = -89.0f;
     }
 
-    vec3 direction;
-    direction.x = cos(radians(_yaw)) * cos(radians(_pitch));
-    direction.y = sin(radians(_pitch));
-    direction.z = sin(radians(_yaw)) * cos(radians(_pitch));
-    cameraFront = normalize(direction);
+    vec3 front;
+    front.x = cos(radians(_yaw)) * cos(radians(_pitch));
+    front.y = sin(radians(_pitch));
+    front.z = sin(radians(_yaw)) * cos(radians(_pitch));
+    cameraFront = normalize(front);
 }
 
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
