@@ -27,6 +27,8 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
 void processInput(GLFWwindow *window);
 
+void mouse_callback(GLFWwindow *window, double xpos, double ypos);
+
 /* Camera */
 vec3 cameraPos = vec3(0.0f, 0.0f, 3.0f);
 vec3 cameraFront = vec3(0.0f, 0.0f, -1.0f);
@@ -36,6 +38,9 @@ vec3 cameraUp = vec3(0.0f, 1.0f, 0.0f);
 float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 
+/* Mouse */
+float _pitch = 0.0f, _yaw = -90.0f;
+float lastX = 400.0f, lastY = 300.0f;
 
 /* Main */
 int main() {
@@ -59,6 +64,7 @@ int main() {
 
     /* Callbacks */
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
 
     /* Initialize GLAD */
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
@@ -71,6 +77,9 @@ int main() {
     string vertexPath = dirPath + "shader.vs";
     string fragmentPath = dirPath + "shader.fs";
     Shader ourShader(vertexPath.c_str(), fragmentPath.c_str());
+
+    /* Mouse Input Settings */
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     /* Configure global OpenGL state */
     glEnable(GL_DEPTH_TEST);
@@ -257,4 +266,32 @@ void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         cameraPos += normalize(cross(cameraFront, cameraUp)) * cameraSpeed;
     }
+}
+
+void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; // reversed since y-coordinates range from bottom to top
+    lastX = xpos;
+    lastY = ypos;
+
+    const float sensitivity = 0.1f; // 마우스 감도 조절
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    _yaw += xoffset;
+    _pitch += yoffset;
+
+    // 수직 회전은 사람의 신체 구조 때문에 위아래로 볼 수 있는 최대 각이 필요함.
+    if (_pitch > 89.0f) {
+        _pitch = 89.0f;
+    }
+    if (_pitch < -89.0f) {
+        _pitch = -89.0f;
+    }
+
+    vec3 direction;
+    direction.x = cos(radians(_yaw)) * cos(radians(_pitch));
+    direction.y = sin(radians(_pitch));
+    direction.z = sin(radians(_yaw)) * cos(radians(_pitch));
+    cameraFront = normalize(direction);
 }
