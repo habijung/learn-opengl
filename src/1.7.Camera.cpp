@@ -204,19 +204,17 @@ int main() {
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
 
-        // Create transformations
-        mat4 view;
-        mat4 projection = mat4(1.0f);
-        view = camera.GetViewMatrix();
-        projection = perspective(radians(camera.Zoom), (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
-
         // Get matrix's uniform location and Set matrix
         ourShader.use();
-        int viewLoc = glGetUniformLocation(ourShader.ID, "view");
-        int projectionLoc = glGetUniformLocation(ourShader.ID, "projection");
-        // Pass locations to the shaders
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(view)); // Method 1
-        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]); // Method 2
+
+        // Create transformations
+        // Pass projection matrix to shader (Note that in this case it could change every frame)
+        mat4 projection = perspective(radians(camera.Zoom), (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
+        ourShader.setMat4("projection", projection);
+
+        // Camera / View transformation
+        mat4 view = camera.GetViewMatrix();
+        ourShader.setMat4("view", view);
 
         // Render container
         glBindVertexArray(VAO);
