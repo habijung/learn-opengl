@@ -36,22 +36,15 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-/* Camera */
-vec3 cameraPos = vec3(0.0f, 0.0f, 3.0f);
-vec3 cameraFront = vec3(0.0f, 0.0f, -1.0f);
-vec3 cameraUp = vec3(0.0f, 1.0f, 0.0f);
-
 /* Timing */
 float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 
-/* Mouse */
+/* Camera */
+Camera camera(vec3(0.0f, 0.0f, 3.0f));
 bool firstMouse = true;
-float _pitch = 0.0f;
-float _yaw = -90.0f;
-float lastX = 400.0f;
-float lastY = 300.0f;
-float fov = 45.0f; // fov = Field of View
+float lastX = SCR_WIDTH / 2.0f;
+float lastY = SCR_HEIGHT / 2.0f;
 
 /* Main */
 int main() {
@@ -214,8 +207,8 @@ int main() {
         // Create transformations
         mat4 view;
         mat4 projection = mat4(1.0f);
-        view = lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-        projection = perspective(radians(fov), 800.0f / 600.0f, 0.1f, 100.0f);
+        view = camera.GetViewMatrix();
+        projection = perspective(radians(camera.Zoom), (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
 
         // Get matrix's uniform location and Set matrix
         ourShader.use();
@@ -264,22 +257,24 @@ void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    float cameraSpeed = static_cast<float> (2.5f * deltaTime);
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        cameraPos += cameraSpeed * cameraFront;
+        camera.ProcessKeyboard(FORWARD, deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        cameraPos -= cameraSpeed * cameraFront;
+        camera.ProcessKeyboard(BACKWARD, deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        cameraPos -= normalize(cross(cameraFront, cameraUp)) * cameraSpeed;
+        camera.ProcessKeyboard(LEFT, deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        cameraPos += normalize(cross(cameraFront, cameraUp)) * cameraSpeed;
+        camera.ProcessKeyboard(RIGHT, deltaTime);
     }
 }
 
-void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
+void mouse_callback(GLFWwindow *window, double xposIn, double yposIn) {
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
+
     if (firstMouse) {
         lastX = xpos;
         lastY = ypos;
@@ -291,36 +286,9 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
     lastX = xpos;
     lastY = ypos;
 
-    const float sensitivity = 0.1f; // 마우스 감도 조절
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
-
-    _yaw += xoffset;
-    _pitch += yoffset;
-
-    // 수직 회전은 사람의 신체 구조 때문에 위아래로 볼 수 있는 최대 각이 필요함.
-    if (_pitch > 89.0f) {
-        _pitch = 89.0f;
-    }
-    if (_pitch < -89.0f) {
-        _pitch = -89.0f;
-    }
-
-    vec3 front;
-    front.x = cos(radians(_yaw)) * cos(radians(_pitch));
-    front.y = sin(radians(_pitch));
-    front.z = sin(radians(_yaw)) * cos(radians(_pitch));
-    cameraFront = normalize(front);
+    camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
-    const float sensitivity = 3.0f; // 스크롤 감도 조절
-    fov -= (float) yoffset * sensitivity; // yoffsset은 스크롤한 양을 알려줌.
-
-    if (fov < 1.0f) {
-        fov = 1.0;
-    }
-    if (fov > 45.0f) {
-        fov = 45.0f;
-    }
+    camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
