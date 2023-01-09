@@ -17,6 +17,7 @@
 #include "shaders/shader.h"
 #include "stb_image.h"
 #include "cube.h"
+#include "camera.h"
 
 using namespace std;
 using namespace glm;
