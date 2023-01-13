@@ -9,6 +9,7 @@
 #include <vector>
 #include "glad/glad.h"
 #include "glm/glm.hpp"
+#include "shaders/shader.h"
 
 
 struct Vertex {
@@ -38,7 +39,31 @@ public:
         setupMesh();
     }
 
-//    void Draw(Shader &shader);
+    void Draw(Shader &shader) {
+        unsigned int diffuseNr = 1;
+        unsigned int specularNr = 1;
+
+        for (unsigned int i = 0; i < textures.size(); i++) {
+            // Activate proper texture unit before binding
+            glActiveTexture(GL_TEXTURE0 + 1);
+
+            // Retrieve texture number (the N in diffuse_textureN)
+            string number;
+            string name = textures[i].type;
+
+            if (name == "texture_diffuse") {
+                number = std::to_string(diffuseNr++);
+            } else if (name == "texture_specular") {
+                number = std::to_string(specularNr++);
+            }
+        }
+        glActiveTexture(GL_TEXTURE0);
+
+        // Draw mesh
+        glBindVertexArray(VAO);
+        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+    }
 
 private:
     // render data
