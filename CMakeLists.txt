@@ -30,8 +30,7 @@ include_directories(include)
 # Project execute
 add_executable(${PROJECT_NAME}
         external/glad/src/glad.c
-        src/1.7.Camera.cpp
-        )
+        src/3.Model-Loading.cpp)
 target_link_libraries(${PROJECT_NAME}
         OpenGL::GL
         glfw
