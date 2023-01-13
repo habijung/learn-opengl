@@ -21,6 +21,8 @@ add_subdirectory(external/glm)
 include_directories(external/glm)
 
 # ASSIMP
+add_subdirectory(external/assimp)
+include_directories(external/assimp)
 
 # Custom Include
 include_directories(include)
