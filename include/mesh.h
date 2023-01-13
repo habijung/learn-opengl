@@ -48,7 +48,7 @@ public:
 
         for (unsigned int i = 0; i < textures.size(); i++) {
             // Activate proper texture unit before binding
-            glActiveTexture(GL_TEXTURE0 + 1);
+            glActiveTexture(GL_TEXTURE0 + i);
 
             // Retrieve texture number (the N in diffuse_textureN)
             string number;
@@ -59,13 +59,16 @@ public:
             } else if (name == "texture_specular") {
                 number = std::to_string(specularNr++);
             }
+
+            // Now set the sampler to the correct texture unit and bind the texture
+            glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i);
+            glBindTexture(GL_TEXTURE_2D, textures[i].id);
         }
-        glActiveTexture(GL_TEXTURE0);
 
         // Draw mesh
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+        glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(GL_TEXTURE0);
     }
 
 private:
