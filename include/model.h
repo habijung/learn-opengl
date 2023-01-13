@@ -16,6 +16,11 @@
 
 class Model {
 public:
+    // Model data
+    std::vector<Mesh> meshes;
+    std::string directory;
+    std::vector<Texture> textures_loaded;
+
     Model(char *path) {
         loadModel(path);
     }
@@ -27,10 +32,6 @@ public:
     }
 
 private:
-    // Model data
-    std::vector<Mesh> meshes;
-    std::string directory;
-
     void loadModel(std::string path) {
         Assimp::Importer importer;
         const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
@@ -112,7 +113,35 @@ private:
         return Mesh(vertices, indices, textures);
     }
 
-    std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName);
+    std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName) {
+        std::vector<Texture> textures;
+
+        for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
+            aiString str;
+            mat->GetTexture(type, i, &str);
+            bool skip = false;
+
+            for (unsigned int j = 0; j < textures_loaded.size(); j++) {
+                if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0) {
+                    textures.push_back(textures_loaded[j]);
+                    skip = true;
+                    break;
+                }
+            }
+
+            if (!skip) {
+                // If texture hasn't been loaded already, load it
+                Texture texture;
+                texture.id = TextureFromFile(str.C_Str(), directory);
+                texture.type = typeName;
+                texture.path = str.C_Str();
+                textures.push_back(texture);
+                textures_loaded.push_back(texture); // Add to loaded textures
+            }
+        }
+
+        return textures;
+    }
 };
 
 #endif //MODEL_H
