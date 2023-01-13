@@ -6,8 +6,6 @@
 
 #include <iostream>
 #include <string>
-#include <filesystem>
-#include <random>
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -15,7 +13,6 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "shaders/shader.h"
-#include "cube.h"
 #include "camera.h"
 #include "model.h"
 
@@ -58,8 +55,8 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
     /* Window object 생성 */
-    GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Learn OpenGL", NULL, NULL);
-    if (window == NULL) {
+    GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Learn OpenGL", nullptr, nullptr);
+    if (window == nullptr) {
         cout << "Failed to creat GLFW window" << endl;
         glfwTerminate();
         return -1;
@@ -98,7 +95,7 @@ int main() {
     /* Render Loop */
     while (!glfwWindowShouldClose(window)) {
         // Per-Frame time logic
-        float currentFrame = static_cast<float>(glfwGetTime());
+        auto currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
@@ -163,8 +160,8 @@ void processInput(GLFWwindow *window) {
 }
 
 void mouse_callback(GLFWwindow *window, double xposIn, double yposIn) {
-    float xpos = static_cast<float>(xposIn);
-    float ypos = static_cast<float>(yposIn);
+    auto xpos = static_cast<float>(xposIn);
+    auto ypos = static_cast<float>(yposIn);
 
     if (firstMouse) {
         lastX = xpos;

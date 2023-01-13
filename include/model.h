@@ -16,6 +16,8 @@
 #include "shaders/shader.h"
 #include "mesh.h"
 
+using namespace std;
+
 
 /* Prototypes */
 unsigned int TextureFromFile(const char *path, const string &directory, bool gamma = false);
@@ -24,27 +26,27 @@ unsigned int TextureFromFile(const char *path, const string &directory, bool gam
 class Model {
 public:
     // Model data
-    std::vector<Mesh> meshes;
-    std::string directory;
-    std::vector<Texture> textures_loaded;
+    string directory;
+    vector<Mesh> meshes;
+    vector<Texture> textures_loaded;
 
     Model(char *path) {
         loadModel(path);
     }
 
     void Draw(Shader &shader) {
-        for (unsigned int i = 0; i < meshes.size(); i++) {
-            meshes[i].Draw(shader);
+        for (auto &mesh: meshes) {
+            mesh.Draw(shader);
         }
     }
 
 private:
-    void loadModel(std::string path) {
+    void loadModel(string path) {
         Assimp::Importer importer;
         const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-            std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << endl;
+            cout << "ERROR::ASSIMP::" << importer.GetErrorString() << endl;
         }
         directory = path.substr(0, path.find_last_of('/'));
         processNode(scene->mRootNode, scene);
@@ -65,9 +67,9 @@ private:
     }
 
     Mesh processMesh(aiMesh *mesh, const aiScene *scene) {
-        std::vector<Vertex> vertices;
-        std::vector<unsigned int> indices;
-        std::vector<Texture> textures;
+        vector<Vertex> vertices;
+        vector<unsigned int> indices;
+        vector<Texture> textures;
 
         for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
             Vertex vertex;
@@ -109,28 +111,29 @@ private:
         if (mesh->mMaterialIndex >= 0) {
             aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
 
-            std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+            vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE,
+                                                               "texture_diffuse");
             textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
-            std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR,
-                                                                     "texture_specular");
+            vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR,
+                                                                "texture_specular");
             textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
         }
 
         return Mesh(vertices, indices, textures);
     }
 
-    std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName) {
-        std::vector<Texture> textures;
+    vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, string typeName) {
+        vector<Texture> textures;
 
         for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
             aiString str;
             mat->GetTexture(type, i, &str);
             bool skip = false;
 
-            for (unsigned int j = 0; j < textures_loaded.size(); j++) {
-                if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0) {
-                    textures.push_back(textures_loaded[j]);
+            for (auto &tex: textures_loaded) {
+                if (strcmp(tex.path.data(), str.C_Str()) == 0) {
+                    textures.push_back(tex);
                     skip = true;
                     break;
                 }
@@ -178,7 +181,7 @@ unsigned int TextureFromFile(const char *path, const string &directory, bool gam
         }
 
         glBindTexture(GL_TEXTURE_2D, textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, (GLint) format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -188,7 +191,7 @@ unsigned int TextureFromFile(const char *path, const string &directory, bool gam
 
         stbi_image_free(data);
     } else {
-        std::cout << "Texture failed to load at path: " << path << std::endl;
+        cout << "Texture failed to load at path: " << path << endl;
         stbi_image_free(data);
     }
 
