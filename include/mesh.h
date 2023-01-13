@@ -13,6 +13,8 @@
 
 #include "shaders/shader.h"
 
+using namespace std;
+
 
 struct Vertex {
     glm::vec3 Position;
@@ -22,19 +24,19 @@ struct Vertex {
 
 struct Texture {
     unsigned int id;
-    std::string type;
-    std::string path;
+    string type;
+    string path;
 };
 
 
 class Mesh {
 public:
     // mesh data
-    std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
-    std::vector<Texture> textures;
+    vector<Vertex> vertices;
+    vector<unsigned int> indices;
+    vector<Texture> textures;
 
-    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) {
+    Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures) {
         this->vertices = vertices;
         this->indices = indices;
         this->textures = textures;
@@ -55,9 +57,9 @@ public:
             string name = textures[i].type;
 
             if (name == "texture_diffuse") {
-                number = std::to_string(diffuseNr++);
+                number = to_string(diffuseNr++);
             } else if (name == "texture_specular") {
-                number = std::to_string(specularNr++);
+                number = to_string(specularNr++);
             }
 
             // Now set the sampler to the correct texture unit and bind the texture
@@ -73,7 +75,7 @@ public:
 
 private:
     // render data
-    unsigned int VAO, VBO, EBO;
+    unsigned int VAO{}, VBO{}, EBO{};
 
     void setupMesh() {
         glGenVertexArrays(1, &VAO);

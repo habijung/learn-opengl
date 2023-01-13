@@ -30,7 +30,7 @@ public:
     vector<Mesh> meshes;
     vector<Texture> textures_loaded;
 
-    Model(char *path) {
+    explicit Model(const string &path) {
         loadModel(path);
     }
 
@@ -41,7 +41,7 @@ public:
     }
 
 private:
-    void loadModel(string path) {
+    void loadModel(const string &path) {
         Assimp::Importer importer;
         const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
@@ -72,7 +72,7 @@ private:
         vector<Texture> textures;
 
         for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
-            Vertex vertex;
+            Vertex vertex{};
             glm::vec3 vector;
 
             // Process vertex positions, normals and texture coordinates
@@ -123,7 +123,7 @@ private:
         return Mesh(vertices, indices, textures);
     }
 
-    vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, string typeName) {
+    vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, const string &typeName) {
         vector<Texture> textures;
 
         for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {

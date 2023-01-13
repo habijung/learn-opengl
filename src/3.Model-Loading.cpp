@@ -89,7 +89,8 @@ int main() {
     Shader ourShader(vertexPath.c_str(), fragmentPath.c_str());
 
     /* Model Loading */
-    char *modelPath = "../model/backpack/backpack.obj";
+    // TODO: Model path 설정을 보기 좋게 수정
+    const string &modelPath = "../model/backpack/backpack.obj";
     Model ourModel(modelPath);
 
     /* Render Loop */
