@@ -43,6 +43,10 @@ bool firstMouse = true;
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 
+/* Texture */
+int texType = 1;
+
+
 /* Main */
 int main() {
     cout << "Run Main()" << endl;
@@ -109,6 +113,9 @@ int main() {
         // Enable shader before setting uniforms
         ourShader.use();
 
+        // Pass texture type to the fragment shader
+        ourShader.setInt("texture_type", texType);
+
         // Create transformations
         // Pass projection matrix to shader (Note that in this case it could change every frame)
         mat4 projection = perspective(radians(camera.Zoom), (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
@@ -146,6 +153,7 @@ void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
+    // Camera input
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         camera.ProcessKeyboard(FORWARD, deltaTime);
     }
@@ -157,6 +165,20 @@ void processInput(GLFWwindow *window) {
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         camera.ProcessKeyboard(RIGHT, deltaTime);
+    }
+
+    // Texture input
+    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
+        texType = 1;
+    }
+    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
+        texType = 2;
+    }
+    if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
+        texType = 3;
+    }
+    if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
+        texType = 4;
     }
 }
 
