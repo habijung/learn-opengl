@@ -1,9 +1,12 @@
 [submodule "external/glfw"]
 	path = external/glfw
-	url = git@github.com:glfw/glfw.git
+	url = git@github.com:habijung/glfw.git
+	branch = learn-opengl
 [submodule "external/glm"]
 	path = external/glm
-	url = git@github.com:g-truc/glm.git
+	url = git@github.com:habijung/glm.git
+	branch = learn-opengl
 [submodule "external/assimp"]
 	path = external/assimp
-	url = git@github.com:assimp/assimp.git
+	url = git@github.com:habijung/assimp.git
+	branch = learn-opengl
