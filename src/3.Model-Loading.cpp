@@ -86,15 +86,12 @@ int main() {
     glEnable(GL_DEPTH_TEST);
 
     /* Shader Settings */
-    // TODO: Shader path 설정을 보기 좋게 수정
-    string dirPath = "../include/shaders/";
-    string vertexPath = dirPath + "shader.vs";
-    string fragmentPath = dirPath + "shader.fs";
+    const string vertexPath = "include/shaders/shader.vs";
+    const string fragmentPath = "include/shaders/shader.fs";
     Shader ourShader(vertexPath.c_str(), fragmentPath.c_str());
 
     /* Model Loading */
-    // TODO: Model path 설정을 보기 좋게 수정
-    const string &modelPath = "../model/backpack/backpack.obj";
+    const string &modelPath = "model/backpack/backpack.obj";
     Model ourModel(modelPath);
 
     /* Render Loop */
