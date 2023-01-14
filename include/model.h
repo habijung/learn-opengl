@@ -43,7 +43,8 @@ public:
 private:
     void loadModel(const string &path) {
         Assimp::Importer importer;
-        const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+        const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs |
+                                                       aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
 
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
             cout << "ERROR::ASSIMP::" << importer.GetErrorString() << endl;
@@ -76,21 +77,34 @@ private:
             glm::vec3 vector;
 
             // Process vertex positions, normals and texture coordinates
+            // Positions
             vector.x = mesh->mVertices[i].x;
             vector.y = mesh->mVertices[i].y;
             vector.z = mesh->mVertices[i].z;
             vertex.Position = vector;
-
-            vector.x = mesh->mNormals[i].x;
-            vector.y = mesh->mNormals[i].y;
-            vector.z = mesh->mNormals[i].z;
-            vertex.Normal = vector;
-
+            // Normals
+            if (mesh->HasNormals()) {
+                vector.x = mesh->mNormals[i].x;
+                vector.y = mesh->mNormals[i].y;
+                vector.z = mesh->mNormals[i].z;
+                vertex.Normal = vector;
+            }
+            // Texture coordinates
             if (mesh->mTextureCoords[0]) {
-                glm::vec3 vec;
+                glm::vec2 vec;
                 vec.x = mesh->mTextureCoords[0][i].x;
                 vec.y = mesh->mTextureCoords[0][i].y;
                 vertex.TexCoords = vec;
+                // Tangent
+                vector.x = mesh->mTangents[i].x;
+                vector.y = mesh->mTangents[i].y;
+                vector.z = mesh->mTangents[i].z;
+                vertex.Tangent = vector;
+                // Bitangent
+                vector.x = mesh->mBitangents[i].x;
+                vector.y = mesh->mBitangents[i].y;
+                vector.z = mesh->mBitangents[i].z;
+                vertex.Bitangent = vector;
             } else {
                 vertex.TexCoords = glm::vec2(0.0f, 0.0f);
             }
@@ -111,13 +125,22 @@ private:
         if (mesh->mMaterialIndex >= 0) {
             aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
 
+            // Diffuse maps
             vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE,
                                                                "texture_diffuse");
             textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-
+            // Specular maps
             vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR,
                                                                 "texture_specular");
             textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+            // Normal maps
+            vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT,
+                                                              "texture_normal");
+            textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+            // Height maps
+            vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT,
+                                                              "texture_height");
+            textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
         }
 
         return Mesh(vertices, indices, textures);
@@ -132,6 +155,7 @@ private:
             bool skip = false;
 
             for (auto &tex: textures_loaded) {
+                // 이미 로드된 texture 파일에 대해서는 건너뛰기
                 if (strcmp(tex.path.data(), str.C_Str()) == 0) {
                     textures.push_back(tex);
                     skip = true;
@@ -142,7 +166,7 @@ private:
             if (!skip) {
                 // If texture hasn't been loaded already, load it
                 Texture texture;
-                texture.id = TextureFromFile(str.C_Str(), directory);
+                texture.id = TextureFromFile(str.C_Str(), this->directory);
                 texture.type = typeName;
                 texture.path = str.C_Str();
                 textures.push_back(texture);
