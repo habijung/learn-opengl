@@ -46,6 +46,10 @@ bool firstMouse = true;
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 
+/* Lighting */
+vec3 lightPos(1.2f, 1.0f, 2.0f);
+
+
 /* Main */
 int main() {
     cout << "Run Main()" << endl;
@@ -84,16 +88,13 @@ int main() {
     glEnable(GL_DEPTH_TEST);
 
     /* Shader Settings */
-    string dirPath = "include/shaders/";
-    string vertexPath = dirPath + "shader.vs";
-    string fragmentPath = dirPath + "shader.fs";
-    Shader ourShader(vertexPath.c_str(), fragmentPath.c_str());
+    string vs = "include/shaders/lighting/colors.vs";
+    string fs = "include/shaders/lighting/colors.fs";
+    Shader lightingShader(vs.c_str(), fs.c_str());
 
-    /* Set up mesh data */
-    unsigned int indices[] = {
-            0, 1, 3,// first triangle
-            1, 2, 3 // second triangle
-    };
+    vs = "include/shaders/lighting/lighting.vs";
+    fs = "include/shaders/lighting/lighting.fs";
+    Shader lightingCubeShader(vs.c_str(), fs.c_str());
 
     // Set up random cube position
     vec3 cubePositions[10];
@@ -107,83 +108,34 @@ int main() {
     }
 
     /* Set up buffers */
-    // Generate & Bind VBO, VAO, EBO
-    unsigned int VBO, VAO, EBO;
-    glGenVertexArrays(1, &VAO);
+    // Generate cube's VAO
+    unsigned int VBO, cubeVAO;
+    glGenVertexArrays(1, &cubeVAO);
     glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
 
-    // Copy vertices array in a buffer for OpenGL to use
-    glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices_cube), vertices_cube, GL_STATIC_DRAW);
 
     // Linking vertex attributes pointers
+    glBindVertexArray(cubeVAO);
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *) 0);
     glEnableVertexAttribArray(0);
-    // texture attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
 
-    /* Load & Create textures */
-    unsigned int texture1, texture2;
+    // Generate lighting cube's VAO
+    unsigned int lightCubeVAO;
+    glGenVertexArrays(1, &lightCubeVAO);
+    glBindVertexArray(lightCubeVAO);
 
-    // texture1
-    glGenTextures(1, &texture1);
-    glBindTexture(GL_TEXTURE_2D, texture1);
-    // texture1: Texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    // texture1: Texture 축소 & 확대
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // Only need to bind the VBO, the container's VBO's data already contains the data.
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    // Set the vertex attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *) 0);
+    glEnableVertexAttribArray(0);
 
-    // texture1: Load image, create texture, and generate mipmaps with STB
-    int width, height, nrChannels;
-    filesystem::path imgPath = "img/container.jpg";
-    unsigned char *data = stbi_load(imgPath.string().c_str(), &width, &height, &nrChannels, 0);
-
-    if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    } else {
-        cout << "Failed to load texture1" << endl;
-    }
-    // 텍스처와 밉맵 생성 완료 후 이미지 메모리 해제
-    stbi_image_free(data);
-
-    // texture 2
-    glGenTextures(1, &texture2);
-    glBindTexture(GL_TEXTURE_2D, texture2);
-    // texture2: Texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    // texture2: Texture 축소 & 확대
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    // texture2: Load image, create texture, and generate mipmaps with STB
-    stbi_set_flip_vertically_on_load(true);
-    imgPath = "img/awesomeface.png";
-    data = stbi_load(imgPath.string().c_str(), &width, &height, &nrChannels, 0);
-
-    if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    } else {
-        cout << "Failed to load texture2" << endl;
-    }
-    stbi_image_free(data);
-
-    // 각 sampler 변수에 texture 맞춰주기
-    ourShader.use();
-    ourShader.setInt("texture1", 0);
-    ourShader.setInt("texture2", 1);
-
-    /* Render Loop */
+    /* ------------------------ */
+    /* -     Render Loop      - */
+    /* ------------------------ */
     while (!glfwWindowShouldClose(window)) {
         // Per-Frame time logic
         float currentFrame = static_cast<float>(glfwGetTime());
@@ -192,33 +144,20 @@ int main() {
 
         processInput(window);
 
-        ourShader.use();
-        ourShader.setFloat("someUniform", 1.0f);
-
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Bind textures
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture1);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2);
+        lightingShader.use();
+        lightingShader.setVec3("objectColor", vec3(1.0f, 0.5f, 0.31f));
+        lightingShader.setVec3("lightColor", vec3(1.0f, 1.0f, 1.0f));
 
-        // Get matrix's uniform location and Set matrix
-        ourShader.use();
-
-        // Create transformations
-        // Pass projection matrix to shader (Note that in this case it could change every frame)
+        // Transformations
         mat4 projection = perspective(radians(camera.Zoom), (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
-        ourShader.setMat4("projection", projection);
-
-        // Camera / View transformation
         mat4 view = camera.GetViewMatrix();
-        ourShader.setMat4("view", view);
+        lightingShader.setMat4("projection", projection);
+        lightingShader.setMat4("view", view);
 
-        // Render container
-        glBindVertexArray(VAO);
-        // Specify indices를 사용하지 않으므로 glDrawArrays를 사용
+        // Render cubes
         for (unsigned int i = 0; i < 10; i++) {
             float angle = 20.0f * (float) i;
             mat4 model = mat4(1.0f);
@@ -226,19 +165,33 @@ int main() {
             model = rotate(model, (float) glfwGetTime() * radians(angle), vec3(1.0f, 0.3f, 0.5f));
 
             // Pass locations to the shaders
-            ourShader.setMat4("model", model);// Method 3
+            lightingShader.setMat4("model", model);
 
+            glBindVertexArray(cubeVAO);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
+
+        // Render lighting cube
+        lightingCubeShader.use();
+        lightingCubeShader.setMat4("projection", projection);
+        lightingCubeShader.setMat4("view", view);
+
+        mat4 model = mat4(1.0f);
+        model = translate(model, lightPos);
+        model = scale(model, glm::vec3(0.5f));
+        lightingCubeShader.setMat4("model", model);
+
+        glBindVertexArray(lightCubeVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
     // Optional: De-allocate all resources once they've outlived their purpose
-    glDeleteVertexArrays(1, &VAO);
+    glDeleteVertexArrays(1, &cubeVAO);
+    glDeleteVertexArrays(1, &lightCubeVAO);
     glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
 
     glfwTerminate();
 

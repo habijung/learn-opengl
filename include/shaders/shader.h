@@ -101,6 +101,10 @@ public:
         glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
     };
 
+    void setVec3(const string &name, const glm::vec3 &vec) const {
+        glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, &vec[0]);
+    };
+
 private:
     static void checkCompileErrors(GLuint shader, string type) {
         int success;
