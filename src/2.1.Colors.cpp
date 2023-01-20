@@ -4,21 +4,21 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 
-#include <iostream>
-#include <string>
 #include <filesystem>
+#include <iostream>
 #include <random>
+#include <string>
 
-#include "glad/glad.h"
 #include "GLFW/glfw3.h"
+#include "glad/glad.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
+#include "camera.h"
+#include "cube.h"
 #include "shaders/shader.h"
 #include "stb_image.h"
-#include "cube.h"
-#include "camera.h"
 
 using namespace std;
 using namespace glm;
@@ -38,8 +38,8 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 /* Timing */
-float deltaTime = 0.0f; // Time between current frame and last frame
-float lastFrame = 0.0f; // Time of last frame
+float deltaTime = 0.0f;// Time between current frame and last frame
+float lastFrame = 0.0f;// Time of last frame
 
 /* Camera */
 Camera camera(vec3(0.0f, 0.0f, 3.0f));
@@ -92,8 +92,8 @@ int main() {
 
     /* Set up mesh data */
     unsigned int indices[] = {
-            0, 1, 3,  // first triangle
-            1, 2, 3   // second triangle
+            0, 1, 3,// first triangle
+            1, 2, 3 // second triangle
     };
 
     // Set up random cube position
@@ -227,7 +227,7 @@ int main() {
             model = rotate(model, (float) glfwGetTime() * radians(angle), vec3(1.0f, 0.3f, 0.5f));
 
             // Pass locations to the shaders
-            ourShader.setMat4("model", model); // Method 3
+            ourShader.setMat4("model", model);// Method 3
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
@@ -281,7 +281,7 @@ void mouse_callback(GLFWwindow *window, double xposIn, double yposIn) {
     }
 
     float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; // reversed since y-coordinates range from bottom to top
+    float yoffset = lastY - ypos;// reversed since y-coordinates range from bottom to top
     lastX = xpos;
     lastY = ypos;
 
