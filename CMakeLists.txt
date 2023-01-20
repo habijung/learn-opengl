@@ -21,22 +21,24 @@ add_subdirectory(external/glm)
 include_directories(external/glm)
 
 # ASSIMP
-set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-add_subdirectory(external/assimp)
-include_directories(external/assimp)
+#set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+#add_subdirectory(external/assimp)
+#include_directories(external/assimp)
 
 # Custom Include
 include_directories(include)
 file(COPY include DESTINATION ${CMAKE_BINARY_DIR})
-file(COPY model DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY img DESTINATION ${CMAKE_BINARY_DIR})
+#file(COPY model DESTINATION ${CMAKE_BINARY_DIR})
 
 # Project execute
 add_executable(${PROJECT_NAME}
         external/glad/src/glad.c
-        src/3.Model-Loading.cpp)
+        src/2.1.Colors.cpp
+        )
 target_link_libraries(${PROJECT_NAME}
         OpenGL::GL
         glfw
         glm
-        assimp
+#        assimp
         )
