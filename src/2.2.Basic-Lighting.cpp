@@ -89,12 +89,12 @@ int main() {
     glEnable(GL_DEPTH_TEST);
 
     /* Shader Settings */
-    string vs = "include/shaders/lighting/object.vs";
-    string fs = "include/shaders/lighting/object.fs";
+    string vs = "include/shaders/lighting/object.vert";
+    string fs = "include/shaders/lighting/object.frag";
     Shader objectShader(vs.c_str(), fs.c_str());
 
-    vs = "include/shaders/lighting/lighting.vs";
-    fs = "include/shaders/lighting/lighting.fs";
+    vs = "include/shaders/lighting/lighting.vert";
+    fs = "include/shaders/lighting/lighting.frag";
     Shader lightingShader(vs.c_str(), fs.c_str());
 
     /* Set Up buffers */
