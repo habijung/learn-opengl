@@ -34,7 +34,7 @@ file(COPY img DESTINATION ${CMAKE_BINARY_DIR})
 # Project execute
 add_executable(${PROJECT_NAME}
         external/glad/src/glad.c
-        src/2.1.Colors.cpp
+        src/2.2.Basic-Lighting.cpp
         )
 target_link_libraries(${PROJECT_NAME}
         OpenGL::GL
