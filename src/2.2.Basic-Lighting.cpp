@@ -158,6 +158,7 @@ int main() {
         mat4 view = camera.GetViewMatrix();
         objectShader.setMat4("projection", projection);
         objectShader.setMat4("view", view);
+        objectShader.setVec3("viewPos", camera.Position);
 
         // Render random cube objects
         //        for (unsigned int i = 0; i < 10; i++) {
