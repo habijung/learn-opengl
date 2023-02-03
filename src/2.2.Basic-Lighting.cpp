@@ -159,17 +159,24 @@ int main() {
         objectShader.setMat4("projection", projection);
         objectShader.setMat4("view", view);
 
-        // Render objects
-        for (unsigned int i = 0; i < 10; i++) {
-            float angle = 20.0f * (float) i;
-            mat4 model = mat4(1.0f);
-            model = translate(model, cubePositions[i]);
-            model = rotate(model, (float) glfwGetTime() * radians(angle), vec3(1.0f, 0.3f, 0.5f));
-            objectShader.setMat4("model", model);
+        // Render random cube objects
+        //        for (unsigned int i = 0; i < 10; i++) {
+        //            float angle = 20.0f * (float) i;
+        //            mat4 model = mat4(1.0f);
+        //            model = translate(model, cubePositions[i]);
+        //            model = rotate(model, (float) glfwGetTime() * radians(angle), vec3(1.0f, 0.3f, 0.5f));
+        //            objectShader.setMat4("model", model);
+        //
+        //            glBindVertexArray(objectVAO);
+        //            glDrawArrays(GL_TRIANGLES, 0, 36);
+        //        }
 
-            glBindVertexArray(objectVAO);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
+        // Render cube objects
+        mat4 modelObject = mat4(1.0f);
+        objectShader.setMat4("model", modelObject);
+
+        glBindVertexArray(objectVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // Render lighting
         lightingShader.use();
