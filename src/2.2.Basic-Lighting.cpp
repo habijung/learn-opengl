@@ -48,7 +48,8 @@ float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 
 /* Lighting */
-vec3 lightPos(1.2f, 1.0f, 2.0f);
+vec3 lightPos(1.0f, 1.0f, 1.0f);
+vec3 lightRange(3.0f, 1.0f, 3.0f);
 
 
 /* Main */
@@ -183,6 +184,11 @@ int main() {
         lightingShader.use();
         lightingShader.setMat4("projection", projection);
         lightingShader.setMat4("view", view);
+
+        // Light가 object 주위를 돌기
+        lightPos = vec3(lightRange.x * sin(glfwGetTime() * 0.5f),
+                        lightRange.y * sin(glfwGetTime()),
+                        lightRange.z * cos(glfwGetTime() * 0.5f));
 
         mat4 model = mat4(1.0f);
         model = translate(model, lightPos);
