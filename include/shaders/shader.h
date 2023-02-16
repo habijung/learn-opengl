@@ -94,7 +94,7 @@ public:
     };
 
     void setFloat(const string &name, float value) const {
-        glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
+        glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
     };
 
     void setMat4(const string &name, const glm::mat4 &mat) const {
