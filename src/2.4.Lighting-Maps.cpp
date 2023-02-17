@@ -104,13 +104,15 @@ int main() {
     glGenVertexArrays(1, &objectVAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(cube_normal), cube_normal, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cube_map), cube_map, GL_STATIC_DRAW);
 
     glBindVertexArray(objectVAO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) 0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     // Generate lighting VAO
     unsigned int lightingVAO;
@@ -120,8 +122,35 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
     glBindVertexArray(lightingVAO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) 0);
     glEnableVertexAttribArray(0);
+
+    /* Texture settings */
+    unsigned int diffuseMap;
+    glGenTextures(1, &diffuseMap);
+    glBindTexture(GL_TEXTURE_2D, diffuseMap);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // STB settings
+    filesystem::path imgPath = "img/container2.png";
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load(imgPath.string().c_str(), &width, &height, &nrChannels, 0);
+
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        cout << "Failed to load texture" << endl;
+    }
+    stbi_image_free(data);
+
+    // Shader configuration
+    objectShader.use();
+    objectShader.setInt("material.diffuse", 0);
 
     /* Set up random cube position */
     vec3 cubePositions[10];
@@ -149,34 +178,23 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         objectShader.use();
-        objectShader.setVec3("objectColor", vec3(1.0f, 0.5f, 0.31f));
-        objectShader.setVec3("lightColor", vec3(1.0f, 1.0f, 1.0f));
-        objectShader.setVec3("lightPos", lightPos);
+        objectShader.setVec3("light.position", lightPos);
+        objectShader.setVec3("viewPos", camera.Position);
 
         // Light properties
-        vec3 lightColor;
-        lightColor.x = sin(glfwGetTime() * 2.0f);
-        lightColor.y = sin(glfwGetTime() * 0.7f);
-        lightColor.z = sin(glfwGetTime() * 1.3f);
-
-        vec3 diffuseColor = lightColor * vec3(0.5f);
-        vec3 ambientColor = diffuseColor * vec3(0.2f);
-        objectShader.setVec3("light.ambient", ambientColor);
-        objectShader.setVec3("light.diffuse", diffuseColor);
+        objectShader.setVec3("light.ambient", vec3(0.2f, 0.2f, 0.2f));
+        objectShader.setVec3("light.diffuse", vec3(0.5f, 0.5f, 0.5f));
         objectShader.setVec3("light.specular", vec3(1.0f, 1.0f, 1.0f));
 
         // Material properties
-        objectShader.setVec3("material.ambient", vec3(1.0f, 0.5f, 0.31f));
-        objectShader.setVec3("material.diffuse", vec3(1.0f, 0.5f, 0.31f));
         objectShader.setVec3("material.specular", vec3(0.5f, 0.5f, 0.5f));
-        objectShader.setFloat("material.shininess", 32.0f);
+        objectShader.setFloat("material.shininess", 64.0f);
 
         // Transformations
         mat4 projection = perspective(radians(camera.Zoom), (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
         mat4 view = camera.GetViewMatrix();
         objectShader.setMat4("projection", projection);
         objectShader.setMat4("view", view);
-        objectShader.setVec3("viewPos", camera.Position);
 
         // Render random cube objects
         //        for (unsigned int i = 0; i < 10; i++) {
@@ -193,6 +211,10 @@ int main() {
         // Render cube objects
         mat4 modelObject = mat4(1.0f);
         objectShader.setMat4("model", modelObject);
+
+        // Bind diffuse map
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, diffuseMap);
 
         glBindVertexArray(objectVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
