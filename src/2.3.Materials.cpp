@@ -155,8 +155,15 @@ int main() {
         objectShader.setVec3("lightPos", lightPos);
 
         // Light properties
-        objectShader.setVec3("light.ambient", vec3(0.2f, 0.2f, 0.2f));
-        objectShader.setVec3("light.diffuse", vec3(0.5f, 0.5f, 0.5f));
+        vec3 lightColor;
+        lightColor.x = sin(glfwGetTime() * 2.0f);
+        lightColor.y = sin(glfwGetTime() * 0.7f);
+        lightColor.z = sin(glfwGetTime() * 1.3f);
+
+        vec3 diffuseColor = lightColor * vec3(0.5f);
+        vec3 ambientColor = diffuseColor * vec3(0.2f);
+        objectShader.setVec3("light.ambient", ambientColor);
+        objectShader.setVec3("light.diffuse", diffuseColor);
         objectShader.setVec3("light.specular", vec3(1.0f, 1.0f, 1.0f));
 
         // Material properties
