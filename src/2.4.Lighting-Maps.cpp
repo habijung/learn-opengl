@@ -137,11 +137,21 @@ int main() {
 
     // STB settings
     filesystem::path imgPath = "img/container2.png";
-    int width, height, nrChannels;
-    unsigned char *data = stbi_load(imgPath.string().c_str(), &width, &height, &nrChannels, 0);
+    int width, height, nrComponents;
+    unsigned char *data = stbi_load(imgPath.string().c_str(), &width, &height, &nrComponents, 0);
 
     if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        GLenum format;
+        if (nrComponents == 1) {
+            format = GL_RED;
+        } else if (nrComponents == 4) {
+            format = GL_RGBA;
+        } else {
+            format = GL_RGB;
+        }
+
+        glBindTexture(GL_TEXTURE_2D, diffuseMap);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     } else {
         cout << "Failed to load texture" << endl;
