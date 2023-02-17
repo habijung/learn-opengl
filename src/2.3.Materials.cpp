@@ -154,6 +154,11 @@ int main() {
         objectShader.setVec3("lightColor", vec3(1.0f, 1.0f, 1.0f));
         objectShader.setVec3("lightPos", lightPos);
 
+        // Light properties
+        objectShader.setVec3("light.ambient", vec3(0.2f, 0.2f, 0.2f));
+        objectShader.setVec3("light.diffuse", vec3(0.5f, 0.5f, 0.5f));
+        objectShader.setVec3("light.specular", vec3(1.0f, 1.0f, 1.0f));
+
         // Material properties
         objectShader.setVec3("material.ambient", vec3(1.0f, 0.5f, 0.31f));
         objectShader.setVec3("material.diffuse", vec3(1.0f, 0.5f, 0.31f));
