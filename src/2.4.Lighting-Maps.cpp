@@ -128,12 +128,15 @@ int main() {
     glEnableVertexAttribArray(0);
 
     /* Texture settings */
-    filesystem::path imgPath = "img/container2.png";
-    unsigned int diffuseMap = loadTexture(imgPath.string().c_str());
+    filesystem::path diffuseImgPath = "img/container2.png";
+    filesystem::path specualrImgPath = "img/container2_specular.png";
+    unsigned int diffuseMap = loadTexture(diffuseImgPath.string().c_str());
+    unsigned int specularMap = loadTexture(specualrImgPath.string().c_str());
 
     // Shader configuration
     objectShader.use();
     objectShader.setInt("material.diffuse", 0);
+    objectShader.setInt("material.specular", 1);
 
     /* Set up random cube position */
     vec3 cubePositions[10];
@@ -198,6 +201,9 @@ int main() {
         // Bind diffuse map
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, diffuseMap);
+        // Bind specular map
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, specularMap);
 
         glBindVertexArray(objectVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
