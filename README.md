@@ -25,7 +25,7 @@
 - Clone OpenGL project
 ```commandline
 $ git clone git@github.com:habijung/learn-opengl.git
-$ git submodule update --init --recursive --remote
+$ git submodule update --init --recursive
 ```
 - CLion에서 프로젝트 폴더 열기
 - Build CMake
